@@ -3,9 +3,9 @@ name := "simp"
 version := "0.0.1"
 
 
-sbtVersion in Global := "1.7.1"
+sbtVersion in Global := "1.11.6"
 
-scalaVersion := "3.3.0"
+scalaVersion := "3.7.2"
 
 resolvers += "Typesafe Repository" at "https://repo.typesafe.com/typesafe/releases/"
 
