@@ -21,3 +21,9 @@ cabal.project.local
 cabal.project.local~
 .HTF/
 .ghc.environment.*
+simp/.bloop/
+simp/project/
+!simp/project/plugins.sbt
+target/
+simp/.metals/metals.lock.db
+simp/project/build.properties
