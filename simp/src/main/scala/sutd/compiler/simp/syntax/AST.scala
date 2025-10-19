@@ -41,6 +41,15 @@ object AST {
         case ParenExp(e:Exp)
     }
 
+    enum ExpPrime{
+        case PlusP(e2:Exp)
+        case MinusP(e2:Exp)
+        case MultP(e2:Exp)
+        case DEqualP(e2:Exp)
+        case LThanP(e2:Exp)
+        case Eps
+    }
+
     enum Const{
         case IntConst(v:Int)
         case BoolConst(v:Boolean)

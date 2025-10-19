@@ -19,6 +19,7 @@ object Parser {
 
     import Stmt.*
     import Exp.*
+    import ExpPrime.*
     import Const.* 
     
     import LToken.*
@@ -177,9 +178,14 @@ object Parser {
       * @return
       */
 
-    def p_space:Parser[PEnv, LToken] = item // fixme
+    def p_space:Parser[PEnv, LToken] = sat(ltoken => ltoken match {
+        case WhiteSpace(src, ltoken) => true
+        case _ => false
+    })
     
-    def p_spaces:Parser[PEnv, List[LToken]] = many(item) // fixme
+    def p_spaces:Parser[PEnv, List[LToken]] = for {
+        spaces <- many(p_space)
+    } yield spaces
 
     /** Lab 1 Task 1.1 end */
 
@@ -190,7 +196,61 @@ object Parser {
       *   E ::= E Op E | X | C | (E) contains left recursion
       * @return
       */
-    def p_exp:Parser[PEnv, Exp] = empty(ConstExp(IntConst(1))) // fixme
+    def p_exp:Parser[PEnv, Exp] = choice(p_exp_var)(
+        choice(p_exp_const)(p_exp_paren)
+    )
+
+    def p_exp_prime:Parser[PEnv, ExpPrime] = choice(p_exp_prime_op)(empty(Eps))
+
+    def p_exp_var = for {
+        _ <- p_spaces
+        x <- p_var
+        _ <- p_spaces
+        exp_prime <- p_exp_prime
+    } yield convert_ast(VarExp(x), exp_prime)
+
+    def p_exp_const = for {
+        _ <- p_spaces
+        c <- p_const
+        _ <- p_spaces
+        exp_prime <- p_exp_prime
+    } yield convert_ast(ConstExp(c), exp_prime)
+
+    def p_exp_paren = for {
+        _ <- p_lparen
+        _ <- p_spaces
+        e <- p_exp
+        _ <- p_spaces
+        _ <- p_rparen
+        _ <- p_spaces
+        e_prime <- p_exp_prime
+        _ <- p_spaces
+    } yield convert_ast(ParenExp(e), e_prime)
+
+    def p_exp_prime_op:Parser[PEnv, ExpPrime] = for {
+        _ <- p_spaces
+        operator <- p_op
+        _ <- p_spaces
+        exp <- p_exp
+        _ <- p_spaces
+    } yield {
+        operator match
+            case PlusSign(_) => PlusP(exp)
+            case MinusSign(_) => MinusP(exp)
+            case AsterixSign(_) => MultP(exp)
+            case LThanSign(_) => LThanP(exp)
+            case DEqSign(_) => DEqualP(exp)
+    }
+
+    def convert_ast(e1:Exp, exp_prime: ExpPrime):Exp = exp_prime match
+        case Eps => e1
+        case PlusP(e2) => Plus(e1, e2)
+        case MinusP(e2) => Minus(e1, e2)
+        case MultP(e2) => Mult(e1, e2)
+        case DEqualP(e2) => DEqual(e1,e2)
+        case LThanP(e2) => LThan(e1,e2)
+    
+
     /** Lab 1 Task 1.2 end */
     
     /**
@@ -198,6 +258,17 @@ object Parser {
       *
       * @return
       */
+
+    def p_op:Parser[PEnv, LToken] = for {
+        op <- choice(p_plus)(
+            choice(p_minus)(
+                choice(p_mult)(
+                    choice(p_lthan)(
+                        p_dequal)
+                    )
+                )
+            )
+    } yield op
     def p_plus:Parser[PEnv,LToken] = sat(ltoken => ltoken match {
         case PlusSign(_) => true 
         case _ => false
