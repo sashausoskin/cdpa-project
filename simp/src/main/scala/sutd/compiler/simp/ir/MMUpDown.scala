@@ -49,8 +49,26 @@ object MMUpDown {
         --------------------------------------------------------------------- (Op)
          GE(e1 op e2) |- (X, down_e1 ++ down_e2 ++ [L:X <- up_e1 op up_e2])
          */ 
-        case _ =>  me.pure((IntLit(1), Nil)) // fixme
-        // Lab 1 Task 2.1 end
+        case Plus(e1, e2) => for {
+            (up_e1, down_e1) <- genExp(e1)
+            (up_e2, down_e2) <- genExp(e2)
+            X <- newTemp
+            L <- newLabel
+        } yield (X, down_e1 ++ down_e2 ++ List((L, IPlus(X, up_e1, up_e2))))
+
+        case Minus(e1, e2) => for {
+            (up_e1, down_e1) <- genExp(e1)
+            (up_e2, down_e2) <- genExp(e2)
+            X <- newTemp
+            L <- newLabel
+        } yield (X, down_e1 ++ down_e2 ++ List((L, IMinus(X, up_e1, up_e2))))
+
+        case Mult(e1, e2) => for {
+            (up_e1, down_e1) <- genExp(e1)
+            (up_e2, down_e2) <- genExp(e2)
+            X <- newTemp
+            L <- newLabel
+        } yield (X, down_e1 ++ down_e2 ++ List((L, IMult(X, up_e1, up_e2))))
     }
 
     def cogen(s:Stmt):CogenState[List[(Label,Instr)]] = s match {
