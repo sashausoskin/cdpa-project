@@ -50,7 +50,14 @@ object SimpInt {
         c3 <- plusConst(c1,c2)
       } yield c3
       // Lab 2 Task 1.1
-      case _ => Left("TODO") // fixme
+      case ParenExp(e) => for {
+        e2 <- evalExp(dlt, e)
+      } yield e2
+
+      case VarExp(v) => dlt.get(v) match
+        case Some(c) => Right(c)
+        case None => Left(s"Undefined variable $v")
+      
       // Lab 2 Task 1.1 end
     }
 
