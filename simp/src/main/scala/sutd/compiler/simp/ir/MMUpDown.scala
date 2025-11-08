@@ -69,6 +69,20 @@ object MMUpDown {
             X <- newTemp
             L <- newLabel
         } yield (X, down_e1 ++ down_e2 ++ List((L, IMult(X, up_e1, up_e2))))
+
+        case DEqual(e1, e2) => for {
+            (up_e1, down_e1) <- genExp(e1)
+            (up_e2, down_e2) <- genExp(e2)
+            X <- newTemp
+            L <- newLabel
+        } yield (X, down_e1 ++ down_e2 ++ List((L, IDEqual(X, up_e1, up_e2))))
+
+        case LThan(e1, e2) => for {
+            (up_e1, down_e1) <- genExp(e1)
+            (up_e2, down_e2) <- genExp(e2)
+            X <- newTemp
+            L <- newLabel
+        } yield (X, down_e1 ++ down_e2 ++ List((L, ILThan(X, up_e1, up_e2))))
     }
 
     def cogen(s:Stmt):CogenState[List[(Label,Instr)]] = s match {
@@ -170,7 +184,7 @@ object MMUpDown {
             var instrs1 = List((lblWhileCondJ, IIfNot(up_cond, lblEndWhile)))
             var instrs2a = instrs2 ++ List((lblEndBody, IGoto(lblWhile)))
 
-            down_cond ++ instrs1 ++ instrs2
+            down_cond ++ instrs1 ++ instrs2a
         }
         // Lab 1 Task 2.2 end
     }
