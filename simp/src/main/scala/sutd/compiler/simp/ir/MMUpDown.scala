@@ -154,7 +154,24 @@ object MMUpDown {
         --------------------------------------------------------- (While)
         G(while cond {body}) |- down_cond ++ instrs1 ++ instrs2'
         */
-        case _ => StateT{ st => Identity((st, List())) }  // fixme
+        case While(cond, b) => for {
+
+            lblWhile <- chkNextLabel
+            (up_cond, down_cond) <- genExp(cond)
+
+
+            lblWhileCondJ <- newLabel
+            instrs2 <- cogen(b)
+            lblEndBody <- newLabel
+
+            lblEndWhile <- chkNextLabel
+
+        } yield {
+            var instrs1 = List((lblWhileCondJ, IIfNot(up_cond, lblEndWhile)))
+            var instrs2a = instrs2 ++ List((lblEndBody, IGoto(lblWhile)))
+
+            down_cond ++ instrs1 ++ instrs2
+        }
         // Lab 1 Task 2.2 end
     }
 
