@@ -79,7 +79,10 @@ object SimpInt {
       def eval(dlt:Delta, ss:List[A]):Either[ErrMsg, Delta] = ss match {
         case Nil => Right(dlt) 
         // Lab 2 Task 1.2 
-        case _ => Left("TODO") // fixme
+        case head :: next => for {
+          dlt1 <- i.eval(dlt, head)
+          dlt2 <- eval(dlt1, next)
+        } yield dlt2
         // Lab 2 Task 1.2 end
       }
     }
