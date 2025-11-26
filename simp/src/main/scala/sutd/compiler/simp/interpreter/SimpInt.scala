@@ -103,7 +103,15 @@ object SimpInt {
         } yield dlt_2
         case Ret(x) => Right(dlt)
         // Lab 2 Task 1.2 
-        case _ => Left("TODO") // fixme
+        case While(cond, b) => evalExp(dlt, cond) match
+          case Left(error) => Left(error)
+          case Right(BoolConst(false)) => Right(dlt)
+          case Right(BoolConst(true)) => for {
+            bodyDlt <- evalMany.eval(dlt, b)
+            dltP <- evalOne.eval(bodyDlt, s)
+          } yield dltP
+          case Right(IntConst(_)) => Left("The condition of a while loop is an integer.")
+
         // Lab 2 Task 1.2 end
       }
 
