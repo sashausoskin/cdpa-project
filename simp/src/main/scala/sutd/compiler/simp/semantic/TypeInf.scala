@@ -83,7 +83,16 @@ object TypeInf {
     given exTypeSubstitutable:Substitutable[ExType] = new Substitutable[ExType]{
         def applySubst(tysubst:TypeSubst)(ty:ExType):ExType = tysubst match {
             // Lab 2 Task 2.1
-            case _ => ty // fixme
+
+            case Empty => ty
+            case RevComp((string, ty1), psi1) => ty match {
+
+                case MonoType(t) => applySubst(psi1)(ty)
+                case TypeVar(n) if (n == string) => applySubst(psi1)(ty1) 
+                case TypeVar(n) => applySubst(psi1)(ty)
+                
+            }
+
             // Lab 2 Task 2.1 end
         }
     }
