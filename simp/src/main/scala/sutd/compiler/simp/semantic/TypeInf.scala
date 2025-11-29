@@ -185,8 +185,8 @@ object TypeInf {
     given extypesUnifiable:Unifiable[(ExType, ExType)] = new Unifiable[(ExType, ExType)] {
         def mgu(p:(ExType,ExType)):Either[String,TypeSubst] = p match {
             // Lab 2 Task 2.2
-            case (IntTy, IntTy) => Right(Empty)
-            case (BoolTy, BoolTy) => Right(Empty)
+            case (MonoType(IntTy), MonoType(IntTy)) => Right(Empty)
+            case (MonoType(BoolTy), MonoType(BoolTy)) => Right(Empty)
             case (TypeVar(n), t) => Right(single(n,t))
             case (t, TypeVar(n)) => Right(single(n,t))
             case _ => Left(s"Error")
