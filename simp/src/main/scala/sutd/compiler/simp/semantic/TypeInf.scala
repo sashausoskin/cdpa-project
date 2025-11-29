@@ -146,7 +146,19 @@ object TypeInf {
             }
             case Ret(x) => Set()
             // Lab 2 Task 2.3
-            case _ => Set() // fixme
+            case If(cond, th, el) => {
+                val (t1, k1) = inferExp(cond)
+                val k2 = infList.infer(th)
+                val k3 = infList.infer(el)
+
+                k1 union k2 union k3 union Set((t1, MonoType(BoolTy)))
+            }
+            case While(cond, b) => {
+                val (t1, k1) = inferExp(cond)
+                val k2 = infList.infer(b)
+
+                k1 union k2 union Set((t1, MonoType(BoolTy)))
+            }
             // Lab 2 Task 2.3 end
             
         }
@@ -168,7 +180,31 @@ object TypeInf {
         }
         case ParenExp(e) => inferExp(e)
         // Lab 2 Task 2.3
-        case _ => (MonoType(IntTy), Set()) // fixme
+        case Plus(e1, e2) => {
+            val (t1, k1) = inferExp(e1)
+            val (t2, k2) = inferExp(e2)
+            (MonoType(IntTy), k1 union k2 union Set((t1, MonoType(IntTy)), (t2, MonoType(IntTy))))
+        }
+        case Minus(e1, e2) => {
+            val (t1, k1) = inferExp(e1)
+            val (t2, k2) = inferExp(e2)
+            (MonoType(IntTy), k1 union k2 union Set((t1, MonoType(IntTy)), (t2, MonoType(IntTy))))
+        }
+        case Mult(e1, e2) => {
+            val (t1, k1) = inferExp(e1)
+            val (t2, k2) = inferExp(e2)
+            (MonoType(IntTy), k1 union k2 union Set((t1, MonoType(IntTy)), (t2, MonoType(IntTy))))
+        }
+        case DEqual(e1, e2) => {
+            val (t1, k1) = inferExp(e1)
+            val (t2, k2) = inferExp(e2)
+            (MonoType(BoolTy), k1 union k2 union Set((t1, t2)))
+        }  
+        case LThan(e1, e2) => {
+            val (t1, k1) = inferExp(e1)
+            val (t2, k2) = inferExp(e2)
+            (MonoType(BoolTy), k1 union k2 union Set((t1, t2)))
+        }  
         // Lab 2 Task 2.3 end        
     } 
 
