@@ -187,8 +187,8 @@ object TypeInf {
             // Lab 2 Task 2.2
             case (IntTy, IntTy) => Right(Empty)
             case (BoolTy, BoolTy) => Right(Empty)
-            case (MonoType(t), TypeVar(n)) => Right(single(n,MonoType(t)))
-            case (TypeVar(n), MonoType(t)) => Right(single(n,MonoType(t)))
+            case (TypeVar(n), t) => Right(single(n,t))
+            case (t, TypeVar(n)) => Right(single(n,t))
             case _ => Left(s"Error")
             // Lab 2 Task 2.2 end
         }
@@ -207,12 +207,14 @@ object TypeInf {
         def mgu(l:List[A]):Either[String, TypeSubst] = {
             l match {
                 // Lab 2 Task 2.2
-                case Empty => Right(Empty)
-                case (ExType(t1), ExType(t1))::t => for {
+                case Nil => Right(Empty)
+                case h::t => for {
 
-                    psi1 <- extypesUnifiable.mgu((t1, t2))
+                    psi1 <- u.mgu(h)
+                    k = s.applySubst(psi1)(t)
+                    psi2 <- mgu(k)
 
-                }
+                } yield compose(psi1, psi2)
                 // Lab 2 Task 2.2 end
             }
         }
