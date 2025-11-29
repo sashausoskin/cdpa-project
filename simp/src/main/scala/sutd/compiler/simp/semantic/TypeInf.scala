@@ -250,7 +250,7 @@ object TypeInf {
                     k = s.applySubst(psi1)(t)
                     psi2 <- mgu(k)
 
-                } yield compose(psi1, psi2)
+                } yield compose(psi2, psi1)
                 // Lab 2 Task 2.2 end
             }
         }
