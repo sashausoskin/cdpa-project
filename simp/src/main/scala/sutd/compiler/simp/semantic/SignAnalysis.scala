@@ -62,8 +62,11 @@ object SignAnalysis {
       * @return
       */
     // Cohort Problem Exercise 2
-    def join(preds:List[AbstractState]):AbstractState = // TODO: Fixme
-        Map()
+    def join(preds:List[AbstractState]):AbstractState = {
+        preds.foldLeft(Map.empty[String, SignAbsVal])( (acc, state) => {
+            acc ++ state
+        })
+    }
 
     type MonotoneFunction = AbstractEnv => Either[String, AbstractEnv]
 
@@ -107,7 +110,70 @@ object SignAnalysis {
               /**
                 * case l: t <- src1 op src2:  s_l = join(s_l)[t -> join(s_l)(src1) abs(op) join(s_l)(src1)]
                 */
-              // YOUR CODE HERE 
+              case (label, IPlus(Temp(AVar(t)), src1, src2)) => {
+                val joined_preds_states = joinPredStates(label, acc)
+                var sign1 = getOprSign(joined_preds_states, src1)
+                var sign2 = getOprSign(joined_preds_states, src2)
+                (sign1, sign2) match
+                  case (Left(err), _) => Left(err)
+                  case (_, Left(err)) => Left(err)
+                  case (Right(lsign), Right(rsign)) => {
+                    val opSign = absPlus(lsign, rsign)
+                    Right(acc + (label -> (joined_preds_states + (t -> opSign) )))
+                  }
+              }
+
+              case (label, IMinus(Temp(AVar(t)), src1, src2)) => {
+                val joined_preds_states = joinPredStates(label, acc)
+                var sign1 = getOprSign(joined_preds_states, src1)
+                var sign2 = getOprSign(joined_preds_states, src2)
+                (sign1, sign2) match
+                  case (Left(err), _) => Left(err)
+                  case (_, Left(err)) => Left(err)
+                  case (Right(lsign), Right(rsign)) => {
+                    val opSign = absMinus(lsign, rsign)
+                    Right(acc + (label -> (joined_preds_states + (t -> opSign) )))
+                  }
+              }
+
+              case (label, IMult(Temp(AVar(t)), src1, src2)) => {
+                val joined_preds_states = joinPredStates(label, acc)
+                var sign1 = getOprSign(joined_preds_states, src1)
+                var sign2 = getOprSign(joined_preds_states, src2)
+                (sign1, sign2) match
+                  case (Left(err), _) => Left(err)
+                  case (_, Left(err)) => Left(err)
+                  case (Right(lsign), Right(rsign)) => {
+                    val opSign = absMult(lsign, rsign)
+                    Right(acc + (label -> (joined_preds_states + (t -> opSign) )))
+                  }
+              }
+
+              case (label, ILThan(Temp(AVar(t)), src1, src2)) => {
+                val joined_preds_states = joinPredStates(label, acc)
+                var sign1 = getOprSign(joined_preds_states, src1)
+                var sign2 = getOprSign(joined_preds_states, src2)
+                (sign1, sign2) match
+                  case (Left(err), _) => Left(err)
+                  case (_, Left(err)) => Left(err)
+                  case (Right(lsign), Right(rsign)) => {
+                    val opSign = absLThan(lsign, rsign)
+                    Right(acc + (label -> (joined_preds_states + (t -> opSign) )))
+                  }
+              }
+
+              case (label, IDEqual(Temp(AVar(t)), src1, src2)) => {
+                val joined_preds_states = joinPredStates(label, acc)
+                var sign1 = getOprSign(joined_preds_states, src1)
+                var sign2 = getOprSign(joined_preds_states, src2)
+                (sign1, sign2) match
+                  case (Left(err), _) => Left(err)
+                  case (_, Left(err)) => Left(err)
+                  case (Right(lsign), Right(rsign)) => {
+                    val opSign = absDEqual(lsign, rsign)
+                    Right(acc + (label -> (joined_preds_states + (t -> opSign) )))
+                  }
+              }
               /**
                 * other cases: s_l = join(s_l)
                 */

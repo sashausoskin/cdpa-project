@@ -15,7 +15,16 @@ object SignLattice {
     import SignAbsVal.*
     // Cohort Problem Exercise 2
     given signLattice:CompleteLattice[SignAbsVal] = new CompleteLattice[SignAbsVal] {
-        def sqSubSetEq(a: SignAbsVal, b: SignAbsVal): Option[Boolean] = None // TODO: FixMe  
-        def lub(a:SignAbsVal, b:SignAbsVal):SignAbsVal = Top // TODO: FixMe
+        def sqSubSetEq(a: SignAbsVal, b: SignAbsVal): Option[Boolean] =
+            Some(a == b)
+        def lub(a:SignAbsVal, b:SignAbsVal):SignAbsVal = (a, b) match
+            case (Top, _) => Top
+            case (_, Top) => Top
+            case (Bot, _) => Bot
+            case (_, Bot) => Bot
+            case (Plus, Plus) => Plus
+            case (Minus, Minus) => Minus
+            case (Zero, Zero) => Zero
+            case (_, _) => Top        
     }
 }
