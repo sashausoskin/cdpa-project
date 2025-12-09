@@ -53,8 +53,21 @@ object SSA {
         // A list of pairs. Each pair consists of a label l and the set of variables that are modified in l 
         val labels_modded_vars:List[(Label, List[String])] = pa.map( li => modVars(li))
         // Task 1.2 TODO
-        val e:E = Map():E // TODO: fixme
-        val pa_with_phis:List[SSALabeledInstr] = Nil // TODO: fixme 
+        val e:E = labels_modded_vars.map((l, S) => l -> S).toMap
+        val pa_with_phis:List[SSALabeledInstr] = pa.foldLeft(List[SSALabeledInstr]())((acc, linstr) => {
+           val (l, instr) = (linstr._1, linstr._2) 
+           e.get(l) match
+            case None => (l, List[PhiAssignment](), instr) :: acc
+            case Some(xs) =>  {
+                val pred = predecessors(g,l)
+                
+                val phis = xs.map(x => PhiAssignment(Temp(AVar(x)), pred.map(prev => (prev, AVar(x))), Temp(AVar(x))))
+                (l, phis, instr) :: acc
+            }
+           
+        })
+            
+        // TODO: fixme 
 
         val p = pa_with_phis.foldLeft(Map():P)((acc:P, li:SSALabeledInstr) => li match {
             case (l, phis, i) =>  acc + (l -> li)

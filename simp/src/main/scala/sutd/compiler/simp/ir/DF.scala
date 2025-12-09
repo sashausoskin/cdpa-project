@@ -189,10 +189,11 @@ object DF {
             val df_local = dfLocal(x, dt, g)
             // Task 1.1 TODO 
             def dfUp(u:Label):List[Label] = {
-                acc.get(u) match
+               val df = acc.get(u) match
                     case Some(v) => v
                     case None => List()
-                
+
+                df.filterNot(p => p == u)
             }
             
             val df_up = childOf(x,dt).flatMap(u => dfUp(u))
