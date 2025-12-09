@@ -57,12 +57,12 @@ object SSA {
         val pa_with_phis:List[SSALabeledInstr] = pa.foldLeft(List[SSALabeledInstr]())((acc, linstr) => {
            val (l, instr) = (linstr._1, linstr._2) 
            e.get(l) match
-            case None => (l, List[PhiAssignment](), instr) :: acc
+            case None => acc ++ List((l, List[PhiAssignment](), instr))
             case Some(xs) =>  {
                 val pred = predecessors(g,l)
                 
                 val phis = xs.map(x => PhiAssignment(Temp(AVar(x)), pred.map(prev => (prev, AVar(x))), Temp(AVar(x))))
-                (l, phis, instr) :: acc
+                acc ++ List((l, phis, instr))
             }
            
         })
