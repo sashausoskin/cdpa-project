@@ -166,7 +166,14 @@ object DF {
 
     // df local implementation from cytron's lemma 2
     // Task 1.1 TODO 
-    def dfLocal(x:Label, dt:DomTree, g:CFG):List[Label] = Nil // TODO: fixme
+    def dfLocal(x:Label, dt:DomTree, g:CFG):List[Label] = {
+        val l_successors = successors(g, x)
+        val l_children = childOf(x, dt)
+        
+        l_successors.filterNot(l_children.toSet)
+    }
+    
+    
 
     /**
       * Build dominance frontier table 
@@ -181,7 +188,12 @@ object DF {
         def go(acc:DFTable, x:Label):DFTable = {
             val df_local = dfLocal(x, dt, g)
             // Task 1.1 TODO 
-            def dfUp(u:Label):List[Label] = Nil // TODO: fixme
+            def dfUp(u:Label):List[Label] = {
+                acc.get(u) match
+                    case Some(v) => v
+                    case None => List()
+                
+            }
             
             val df_up = childOf(x,dt).flatMap(u => dfUp(u))
             acc + (x -> (df_local ++ df_up))
