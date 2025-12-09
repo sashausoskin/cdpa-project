@@ -52,8 +52,31 @@ object SSA {
     def insertPhis(pa:List[LabeledInstr], dft:DFTable, g:CFG):P = {
         // A list of pairs. Each pair consists of a label l and the set of variables that are modified in l 
         val labels_modded_vars:List[(Label, List[String])] = pa.map( li => modVars(li))
+        val modded_vars_labels:Map[String, List[Label]] = labels_modded_vars.foldLeft(Map[String, List[Label]]())((acc, curr) => {
+            val (l, mod_vars) = (curr._1, curr._2)
+            val mod_map = mod_vars.foldLeft(acc)((acc2, mod_var) => {
+                val curr_mod_labels = acc2.getOrElse(mod_var, Nil)
+                acc2 + (mod_var -> (l :: curr_mod_labels))
+            })
+            mod_map
+        })
+        
+        val phi_assignments = modded_vars_labels.foldLeft(Map[String, List[Label]]())((acc, curr) => {
+            val (variable, labels) = (curr._1, curr._2)
+            acc + (variable -> dfPlus(dft, labels))
+        })
+
         // Task 1.2 TODO
-        val e:E = labels_modded_vars.map((l, S) => l -> S).toMap
+        val e:E = phi_assignments.foldLeft(Map[Label, List[String]]())((acc, curr) => {
+            val (variable, phi_placements) = (curr._1, curr._2)
+
+            val mod_map = phi_placements.foldLeft(acc)((acc_sub, phi_placement) => {
+                val curr_phi_variables = acc_sub.getOrElse(phi_placement, Nil)
+
+                acc_sub + (phi_placement -> (variable :: curr_phi_variables))
+            })
+            mod_map
+        })
         val pa_with_phis:List[SSALabeledInstr] = pa.foldLeft(List[SSALabeledInstr]())((acc, linstr) => {
            val (l, instr) = (linstr._1, linstr._2) 
            e.get(l) match
